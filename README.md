@@ -1,4 +1,20 @@
 # EaglesEye
+![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
+
+
+
+
+![Language](https://img.shields.io/badge/kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
+
+
+
+
+![License](https://img.shields.io/badge/license-Proprietary-red)
+
+
+
+
+![Status](https://img.shields.io/badge/status-Coming%20Soon-yellow)
 
 **A pro camera and film-emulation studio, built entirely on-device.**
 
