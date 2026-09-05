@@ -1,20 +1,20 @@
-# EaglesEye
-![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
+# EaglesEye 
+![Made with AGSL](https://img.shields.io/badge/shaders-AGSL-orange)
 
 
 
 
-![Language](https://img.shields.io/badge/kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
+![On-device AI](https://img.shields.io/badge/AI-on--device-blueviolet)
 
 
 
 
-![License](https://img.shields.io/badge/license-Proprietary-red)
+![Min SDK](https://img.shields.io/badge/API-26%2B-brightgreen)
 
 
 
 
-![Status](https://img.shields.io/badge/status-Coming%20Soon-yellow)
+![Repo Views](https://img.shields.io/badge/dynamic/json?url=&label=views)
 
 **A pro camera and film-emulation studio, built entirely on-device.**
 
