@@ -29,10 +29,6 @@
 ![Min SDK](https://img.shields.io/badge/API-26%2B-brightgreen)
 
 
-
-
-![Repo Views](https://img.shields.io/badge/dynamic/json?url=&label=views)
-
 **A pro camera and film-emulation studio, built entirely on-device.**
 
 EaglesEye is an Android camera and photo-editing app that brings together manual pro camera controls, real-time film emulation, GPU shader effects, and on-device AI depth/bokeh into a single all-in-one workflow — from capture to final edit, without leaving the app.
