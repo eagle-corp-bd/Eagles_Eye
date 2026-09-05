@@ -1,32 +1,13 @@
-# EaglesEye 
-![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
-
-
-
-
-![Language](https://img.shields.io/badge/kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white)
-
-
-
-
-![License](https://img.shields.io/badge/license-Proprietary-red)
-
-
-
-
-![Status](https://img.shields.io/badge/status-Coming%20Soon-yellow)
-
-![Made with AGSL](https://img.shields.io/badge/shaders-AGSL-orange)
-
-
-
-
-![On-device AI](https://img.shields.io/badge/AI-on--device-blueviolet)
-
-
-
-
-![Min SDK](https://img.shields.io/badge/API-26%2B-brightgreen)
+# Eagles Eye 
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white" />
+  <img src="https://img.shields.io/badge/kotlin-Jetpack%20Compose-7F52FF?logo=kotlin&logoColor=white" />
+  <img src="https://img.shields.io/badge/license-Proprietary-red" />
+  <img src="https://img.shields.io/badge/status-Coming%20Soon-yellow" />
+  <img src="https://img.shields.io/badge/shaders-AGSL-orange" />
+  <img src="https://img.shields.io/badge/AI-on--device-blueviolet" />
+  <img src="https://img.shields.io/badge/API-26%2B-brightgreen" />
+</p>
 
 
 **A pro camera and film-emulation studio, built entirely on-device.**
