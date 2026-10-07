@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Iris blades -->
+    <group android:rotation="0" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#C9A96E"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <group android:rotation="60" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#A8864F"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <group android:rotation="120" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#C9A96E"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <group android:rotation="180" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#A8864F"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <group android:rotation="240" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#C9A96E"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <group android:rotation="300" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#A8864F"
+            android:pathData="M52.4,30 L55.6,30 A2.4,2.4 0 0 1 58,32.4 L58,50 A2.4,2.4 0 0 1 55.6,52.4 L52.4,52.4 A2.4,2.4 0 0 1 50,50 L50,32.4 A2.4,2.4 0 0 1 52.4,30 Z" />
+    </group>
+    <!-- Outer ring -->
+    <path android:strokeColor="#E8CD98" android:strokeWidth="4.5"
+        android:pathData="M54,27.5 A26.5,26.5 0 1 1 53.9,27.5 Z" />
+    <!-- Center dot -->
+    <path android:fillColor="#E8CD98" android:pathData="M52,52 a2,2 0 1 1 4,0 a2,2 0 1 1 -4,0 Z" />
+</vector>

@@ -1,0 +1,147 @@
+/*
+ * EaglesEye real-time relighting — AGSL RuntimeShader.
+ *
+ * Consumes the app's existing portrait depth matte (normalized 0..1,
+ * 1 = nearest/subject, 0 = far) and re-shades the live camera frame with a
+ * draggable light orb. GPU-only, single pass, per-frame uniform updates —
+ * no CPU round-trip for the lighting math itself.
+ *
+ * INPUT SAMPLING: AGSL `uniform shader` inputs are evaluated in the SAME
+ * coordinate space the main shader receives — pixel coordinates (not
+ * normalized UVs). The BitmapShader bound via setInputShader carries a local
+ * matrix that maps the full surface pixel range onto the (smaller) frame /
+ * depth bitmap, so sampling at `coord` covers the whole image instead of
+ * collapsing to a single clamped texel (which previously rendered as a flat
+ * gray background with no live feed).
+ *
+ * STAGE 1 — normal reconstruction.
+ *   The depth matte is treated as a height field (inverted so nearer =
+ *   higher). A Sobel kernel over 3x3 taps yields per-pixel surface gradients
+ *   from which the normal is reconstructed (standard -1..1 -> 0..1 RGB
+ *   encoding). Depth-aware smoothing blends each tap with a cheap 3x3 box
+ *   average (uSmoothMix) so noisy / low-confidence depth regions do not
+ *   produce jagged normals — clean edges matter more here than in bokeh.
+ *
+ * STAGE 2 — lighting.
+ *   Lambertian diffuse (dot(n, L)) plus a Blinn-Phong specular term
+ *   (pow(dot(n, H), uShininess)). Diffuse + specular are added onto the
+ *   original frame color, then hard-clamped so highlights never blow out.
+ *   uEdgeFeather reduces light response right at depth discontinuities so
+ *   object boundaries don't get a harsh light rim (mirrors the mask-feather
+ *   philosophy of the bokeh pipeline).
+ */
+
+uniform shader frame;   // live camera frame (model-input RGB, square)
+uniform shader depthMap; // normalized depth matte (1 = nearest = subject)
+
+uniform float2 uSize;       // render surface size in px (main(coord) is px)
+uniform float2 uLightPos;   // light orb in UV space (0..1)
+uniform float uLightHeight; // how far the light hovers above the plane
+uniform float uLightColorR;
+uniform float uLightColorG;
+uniform float uLightColorB;
+uniform float uIntensity;   // diffuse strength
+uniform float uShininess;   // Blinn-Phong exponent
+uniform float uSpecular;    // specular strength
+uniform float uAmbient;     // unlit keep-color floor (0..1)
+uniform float uSmoothMix;   // depth-aware smoothing blend (0..1)
+uniform float uHeightGain;  // gradient -> normal steepness
+uniform float uSlopeLimit;  // clamps maximum normal tilt
+uniform float uEdgeFeather; // boundary feathering (0..1)
+uniform float uDebug;       // 0 = lit composite, 1 = normal map, 2 = depth map
+
+// All sampling is done in pixel space; `p` is a surface pixel coordinate.
+float depthAt(float2 p) {
+    p = clamp(p, float2(1.0), uSize - float2(1.0));
+    // Invert: the matte stores 1 = NEAREST, we need 1 = FAR for a height field.
+    return 1.0 - clamp(depthMap.eval(p).r, 0.0, 1.0);
+}
+
+float edgeAt(float2 p, float2 texel) {
+    float c = depthAt(p);
+    float avg = (c
+        + depthAt(p + float2(-texel.x, -texel.y))
+        + depthAt(p + float2( texel.x, -texel.y))
+        + depthAt(p + float2(-texel.x,  texel.y))
+        + depthAt(p + float2( texel.x,  texel.y))
+        + depthAt(p + float2(-texel.x, 0.0))
+        + depthAt(p + float2( texel.x, 0.0))
+        + depthAt(p + float2(0.0, -texel.y))
+        + depthAt(p + float2(0.0,  texel.y))) * (1.0 / 9.0);
+    return abs(c - avg);
+}
+
+// STAGE 1 — Sobel normal reconstruction with depth-aware smoothing.
+// `texel` is a 1-pixel step expressed in surface pixels; the input matrix maps
+// surface pixels onto the (smaller) depth bitmap, so this stays resolution
+// independent in screen space.
+float3 depthNormal(float2 p, float2 texel) {
+    float tl = depthAt(p + float2(-texel.x, -texel.y));
+    float tr = depthAt(p + float2( texel.x, -texel.y));
+    float bl = depthAt(p + float2(-texel.x,  texel.y));
+    float br = depthAt(p + float2( texel.x,  texel.y));
+    float t  = depthAt(p + float2(0.0, -texel.y));
+    float b  = depthAt(p + float2(0.0,  texel.y));
+    float l  = depthAt(p + float2(-texel.x, 0.0));
+    float r  = depthAt(p + float2( texel.x, 0.0));
+    float md = depthAt(p);
+
+    // Depth-aware smoothing: pull the center tap toward the local average so
+    // noise in flat, low-confidence regions doesn't produce jagged normals.
+    md = mix(md, (md + tl + tr + bl + br + t + b + l + r) * (1.0 / 9.0), uSmoothMix);
+
+    // Sobel-weighted central differences (resolution-independent via texel).
+    float gx = ((tl + 2.0 * l + bl) - (tr + 2.0 * r + br));
+    float gy = ((tl + 2.0 * t + tr) - (bl + 2.0 * b + br));
+
+    // Slope clamp: kill the ultra-steep spikes noisy depth maps produce at
+    // object silhouettes before they poke through as bright streak normals.
+    float slope = length(float2(gx, gy));
+    if (slope > uSlopeLimit) {
+        gx *= uSlopeLimit / max(slope, 1e-6);
+        gy *= uSlopeLimit / max(slope, 1e-6);
+    }
+
+    float3 nrm = normalize(float3(-gx * uHeightGain, -gy * uHeightGain, 1.0));
+    return nrm;
+}
+
+half4 main(float2 coord) {
+    // Lighting math (orb direction) uses normalized UV; texture sampling uses
+    // raw pixel coordinates so the BitmapShader matrix can place the small
+    // frame/depth bitmaps across the full surface.
+    float2 uv = coord / uSize;
+    float2 texel = float2(1.0, 1.0);
+
+    // STAGE 1 output (debug): normal map encoded -1..1 -> 0..1 RGB.
+    float3 n = depthNormal(coord, texel);
+    if (uDebug >= 0.5 && uDebug < 1.5) {
+        float3 enc = n * 0.5 + 0.5;
+        return half4(enc, 1.0);
+    }
+    if (uDebug >= 1.5) {
+        float dd = depthMap.eval(coord).r;
+        return half4(dd, dd, dd, 1.0);
+    }
+
+    float4 col = frame.eval(coord);
+
+    // STAGE 2 — per-pixel light direction from the orb position.
+    float3 L = normalize(float3(uLightPos - uv, uLightHeight));
+    float3 V = float3(0.0, 0.0, 1.0);
+    float3 H = normalize(L + V);
+
+    float diff = max(dot(n, L), 0.0);
+    float spec = pow(max(dot(n, H), 0.0), uShininess) * uSpecular;
+    float3 lightMixed = float3(uLightColorR, uLightColorG, uLightColorB);
+
+    // Boundary feathering: soften the lighting response through depth
+    // discontinuities so subject edges don't get a harsh light rim.
+    float edge = smoothstep(0.05, 0.35, edgeAt(coord, texel));
+    float response = (1.0 - edge * uEdgeFeather) * (diff * uIntensity + spec);
+
+    // Additive composite onto the original color, hard-clamped (no blowouts).
+    float3 lit = col.rgb * uAmbient + col.rgb * response * lightMixed;
+    lit = clamp(lit, 0.0, 1.0);
+    return half4(lit, col.a);
+}

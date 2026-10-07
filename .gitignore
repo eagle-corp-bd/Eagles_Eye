@@ -1,0 +1,24 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches/build_file_checksums.ser
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+
+# Large local artifacts — never commit (APK goes to Releases instead)
+/backup
+/tar
+/*.tar.gz
+/log
+/skills
+
+# ML models (>100 MB: birefnet.tflite) — bundled inside the release APK
+app/src/main/assets/*.tflite
+
+.git/
