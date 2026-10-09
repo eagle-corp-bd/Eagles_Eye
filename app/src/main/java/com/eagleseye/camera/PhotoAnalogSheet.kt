@@ -40,7 +40,7 @@ private const val PREVIEW_MAX = 1280
 private const val EXPORT_MAX = 4096
 
 /**
- * Dazz-Cam style editor for an arbitrary (custom) photo picked from the device.
+ * Film-look editor for an arbitrary (custom) photo picked from the device.
  *
  * The picked image is decoded once, then re-baked on a background thread through
  * [FilmEngine.applyToCapture] every time a control changes (debounced), so the
